@@ -10,6 +10,36 @@ const classes={
 const dailyRecords=[];
 const followups=[];
 let current="Sam";let currentClass="VAP-7D";let selected=new Set();let view="classes";let suggestions=[];let currentDetailNode=null;let calendarFilter="all";let calendarMode="history";let selectedHistoryDate=today;const classDrafts={};const expandedRows=new Set();
+
+const STORAGE_KEY="penn-feedback:v1";
+let persistTimer=null;
+function restoreAppState(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+  if(!saved)return;
+  if(saved.classes&&typeof saved.classes==="object")Object.assign(classes,saved.classes);
+  if(saved.students&&typeof saved.students==="object")Object.assign(students,saved.students);
+  if(Array.isArray(saved.dailyRecords))dailyRecords.push(...saved.dailyRecords);
+  if(Array.isArray(saved.followups))followups.push(...saved.followups);
+  if(saved.classDrafts&&typeof saved.classDrafts==="object")Object.assign(classDrafts,saved.classDrafts);
+ }catch(error){console.warn("Không thể khôi phục dữ liệu Penn Feedback:",error)}
+}
+function persistAppState(){
+ clearTimeout(persistTimer);
+ persistTimer=setTimeout(()=>{
+  try{
+   localStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,classes,students,dailyRecords,followups,classDrafts,savedAt:new Date().toISOString()}));
+  }catch(error){console.warn("Không thể lưu dữ liệu Penn Feedback:",error)}
+ },0);
+}
+restoreAppState();
+window.addEventListener("beforeunload",()=>{
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,classes,students,dailyRecords,followups,classDrafts,savedAt:new Date().toISOString()}))}catch(error){}
+});
+document.addEventListener("input",persistAppState);
+document.addEventListener("change",persistAppState);
+document.addEventListener("click",()=>queueMicrotask(persistAppState));
+
 const studentSelect=document.querySelector("#student-select");
 const classSelect=document.querySelector("#class-select");
 
