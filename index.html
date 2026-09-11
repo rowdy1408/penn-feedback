@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Prototype bản đồ feedback học viên dành cho giáo viên và quản lý." />
+  <title>Connected Feedback</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">CF</span><div><strong>Connected Feedback</strong><small>MINI ENGLISH</small></div></div>
+      <nav aria-label="Điều hướng chính">
+        <button class="nav-item active" data-view="classes"><span>▦</span> Danh sách lớp</button>
+        <button class="nav-item" data-view="calendar"><span>□</span> Lịch feedback</button>
+      </nav>
+      <div class="class-context">
+        <p>LỚP ĐANG MỞ · <strong id="sidebar-class-code">VAP-7D</strong></p>
+        <button class="nav-item" data-view="intake"><span>＋</span> Nhập comment</button>
+        <button class="nav-item" data-view="pattern"><span>⌘</span> Class Pattern</button>
+        <button class="nav-item" data-view="student"><span>◉</span> Học sinh</button>
+        <button class="nav-item" data-view="daily"><span>▤</span> Tổng hợp ngày</button>
+        <button class="nav-item" data-view="class-calendar"><span>□</span> Lịch feedback lớp</button>
+      </div>
+      <div class="legend">
+        <p>Chú thích node</p>
+        <span><i class="dot strength"></i> Điểm mạnh</span>
+        <span><i class="dot evidence"></i> Bằng chứng</span>
+        <span><i class="dot improve"></i> Cần cải thiện</span>
+        <span><i class="dot action"></i> Hành động</span>
+        <span><i class="dot progress"></i> Tiến bộ</span>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div><p class="eyebrow">BẢN ĐỒ FEEDBACK</p><h1 id="page-title">Nhập comment sau buổi học</h1></div>
+        <div id="header-context" class="header-context">Chọn một lớp để bắt đầu</div>
+        <div class="controls hidden" aria-hidden="true">
+          <label>Mã lớp<select id="class-select"></select></label>
+          <label>Học viên<select id="student-select"></select></label>
+        </div>
+      </header>
+
+      <section id="classes-view" class="classes-view hidden">
+        <div class="class-list-panel">
+          <div class="panel-title"><div><p class="eyebrow">DANH SÁCH LỚP</p><h2>Các lớp đang quản lý</h2></div><span id="class-count">0 lớp</span></div>
+          <div id="class-cards" class="class-cards"></div>
+        </div>
+        <div class="create-class-panel">
+          <div class="step-heading"><span>＋</span><div><h2>Tạo lớp mới</h2><p>Chỉ cần mã lớp và danh sách học sinh.</p></div></div>
+          <label class="comment-label">Mã lớp<input id="new-class-code" type="text" placeholder="Ví dụ: VAP-7D" /></label>
+          <label class="comment-label">Danh sách học sinh<textarea id="new-students" rows="8" placeholder="Mỗi học sinh một dòng"></textarea></label>
+          <button id="create-class-btn" class="primary">Tạo lớp</button>
+        </div>
+      </section>
+
+      <section id="intake-view" class="bulk-feedback-view hidden">
+        <div class="bulk-toolbar">
+          <div><p class="eyebrow">NHẬP FEEDBACK THEO LỚP</p><h2 id="bulk-class-title">VAP-7D</h2></div>
+          <div class="bulk-context">
+            <label>Ngày<input id="session-date" type="date" /></label>
+            <label>Môn học<select id="subject-name"><option>Maths</option><option>ELA</option><option>Social Studies</option><option>Science</option><option>Grammar</option><option>Spanish</option><option>English Communication</option></select></label>
+          </div>
+        </div>
+        <div class="table-tools">
+          <input id="student-search" type="search" placeholder="Tìm học sinh…" />
+          <select id="status-filter"><option value="all">Tất cả trạng thái</option><option value="empty">Chưa nhập</option><option value="draft">Đã lưu nháp</option><option value="followup">Cần follow-up</option></select>
+          <select id="student-sort"><option value="az">Tên A–Z</option><option value="za">Tên Z–A</option><option value="empty">Chưa nhập trước</option><option value="recent">Vừa cập nhật trước</option></select>
+          <div class="progress-label"><strong id="feedback-progress">0/13</strong><span>đã nhập</span></div>
+        </div>
+        <div class="feedback-table-wrap">
+          <table class="feedback-table">
+            <thead><tr><th>Học sinh</th><th>Feedback gần nhất</th><th>Comment hôm nay</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody id="feedback-table-body"></tbody>
+          </table>
+        </div>
+        <div class="bulk-footer"><span>Comment được tự động lưu nháp trên prototype.</span><button id="finish-class-btn" class="primary">Hoàn tất feedback của lớp</button></div>
+      </section>
+
+      <section id="calendar-view" class="calendar-view hidden">
+        <div class="calendar-mode-tabs"><button class="mode-btn active" data-calendar-mode="history">Lịch sử feedback</button><button class="mode-btn" data-calendar-mode="followup">Lịch kiểm tra lại</button></div>
+        <div class="calendar-head">
+          <div><p class="eyebrow" id="calendar-eyebrow">FEEDBACK HISTORY</p><h2 id="calendar-title">Lịch sử feedback</h2><p id="calendar-description">Chọn một ngày để xem lại feedback của từng học sinh và từng môn.</p></div>
+          <div id="followup-filters" class="calendar-filters hidden"><button class="filter-btn active" data-calendar-filter="all">Tất cả</button><button class="filter-btn" data-calendar-filter="today">Hôm nay</button><button class="filter-btn" data-calendar-filter="overdue">Quá hạn</button><button class="filter-btn" data-calendar-filter="done">Đã xong</button></div>
+        </div>
+        <div class="calendar-layout">
+          <div id="feedback-history" class="feedback-history"></div>
+          <div id="followup-list" class="followup-list hidden"></div>
+          <aside class="calendar-summary"><p class="eyebrow">TỔNG QUAN</p><div id="calendar-stats" class="calendar-stats"></div></aside>
+        </div>
+      </section>
+
+      <section id="daily-view" class="daily-view hidden">
+        <div class="daily-head">
+          <div><p class="eyebrow">DAILY OVERVIEW</p><h2>Tổng hợp feedback theo ngày</h2><p>Mỗi môn giữ nhận xét riêng; bản tổng hợp kết nối các điểm nổi bật trong ngày.</p></div>
+          <label>Ngày cần xem<input id="daily-date" type="date" /></label>
+        </div>
+        <div class="daily-grid">
+          <div class="subject-panel">
+            <div class="panel-title"><strong>Feedback theo môn</strong><span id="subject-count">0 môn</span></div>
+            <div id="daily-subjects" class="daily-subjects"></div>
+          </div>
+          <div class="daily-summary-panel">
+            <p class="eyebrow">BẢN TỔNG HỢP TRONG NGÀY</p>
+            <h2 id="daily-student-name">Feedback cho học viên</h2>
+            <div id="daily-summary" class="feedback-box empty"><p>Chưa có dữ liệu trong ngày được chọn.</p></div>
+            <button id="generate-daily-btn" class="primary">Tạo feedback tổng hợp</button>
+            <button id="copy-daily-btn" class="copy-btn" disabled>Sao chép bản tổng hợp</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="map-workspace" class="workspace hidden">
+        <div class="map-card">
+          <div class="map-toolbar">
+            <div><strong id="map-heading">Bản đồ của học viên</strong><span id="map-subtitle">Dữ liệu 4 tuần gần nhất</span></div>
+            <div class="map-actions"><label>Thời gian<select id="period-filter"><option value="today">Hôm nay</option><option value="7days">7 ngày gần nhất</option><option value="month" selected>Tháng này</option><option value="last-month">Tháng trước</option></select></label><button id="reset-btn" class="secondary">Bỏ chọn tất cả</button></div>
+          </div>
+          <div id="graph" class="graph" aria-label="Bản đồ các ý feedback"></div>
+          <div class="map-note"><span>Gợi ý:</span> Bấm vào một node để thêm hoặc bỏ ý khỏi feedback.</div>
+        </div>
+
+        <aside class="composer">
+          <div class="composer-head"><div><p class="eyebrow">FEEDBACK BUILDER</p><h2 id="composer-name">Feedback cho học viên</h2></div><span id="idea-count" class="count">0 ý</span></div>
+          <div id="selected-ideas" class="selected-ideas"></div>
+          <div class="divider"></div>
+          <label class="tone-label">Giọng văn
+            <select id="tone-select"><option value="balanced">Cân bằng, tích cực</option><option value="warm">Thân thiện, động viên</option><option value="direct">Ngắn gọn, trực tiếp</option></select>
+          </label>
+          <button id="generate-btn" class="primary">Tạo bản nháp feedback</button>
+          <div id="feedback-box" class="feedback-box empty"><p>Chọn ít nhất hai ý trên bản đồ để tạo bản nháp.</p></div>
+          <button id="copy-btn" class="copy-btn" disabled>Sao chép feedback</button>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <aside id="node-detail" class="node-detail" aria-hidden="true">
+    <button id="close-detail" class="detail-close" aria-label="Đóng">×</button>
+    <p class="eyebrow" id="detail-type">CHI TIẾT</p>
+    <h2 id="detail-title">Thông tin node</h2>
+    <div id="detail-body" class="detail-body"></div>
+    <button id="detail-select-btn" class="primary">Thêm vào feedback</button>
+  </aside>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
