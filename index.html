@@ -66,7 +66,7 @@
         </div>
         <div class="table-tools">
           <input id="student-search" type="search" placeholder="Tìm học sinh…" />
-          <select id="status-filter"><option value="all">Tất cả trạng thái</option><option value="empty">Chưa nhập</option><option value="draft">Đã lưu nháp</option><option value="followup">Cần follow-up</option></select>
+          <select id="status-filter"><option value="all">Tất cả trạng thái</option><option value="empty">Chưa nhập</option><option value="draft">Đang nhập · chưa lưu</option><option value="saved">Đã lưu vào bản đồ</option><option value="followup">Cần follow-up</option></select>
           <select id="student-sort"><option value="az">Tên A–Z</option><option value="za">Tên Z–A</option><option value="empty">Chưa nhập trước</option><option value="recent">Vừa cập nhật trước</option></select>
           <div class="progress-label"><strong id="feedback-progress">0/13</strong><span>đã nhập</span></div>
         </div>
@@ -76,7 +76,7 @@
             <tbody id="feedback-table-body"></tbody>
           </table>
         </div>
-        <div class="bulk-footer"><span>Comment được tự động lưu nháp trên prototype.</span><button id="finish-class-btn" class="primary">Hoàn tất feedback của lớp</button></div>
+        <div class="bulk-footer"><span>Nội dung đang nhập được giữ tự động. Bấm “Lưu” để đưa feedback vào Student Map và Class Pattern.</span><button id="finish-class-btn" class="primary">Lưu tất cả feedback đã nhập</button></div>
       </section>
 
       <section id="calendar-view" class="calendar-view hidden">
@@ -116,7 +116,7 @@
         <div class="map-card">
           <div class="map-toolbar">
             <div><strong id="map-heading">Bản đồ của học viên</strong><span id="map-subtitle">Dữ liệu 4 tuần gần nhất</span></div>
-            <div class="map-actions"><label>Thời gian<select id="period-filter"><option value="today">Hôm nay</option><option value="7days">7 ngày gần nhất</option><option value="month" selected>Tháng này</option><option value="last-month">Tháng trước</option></select></label><button id="reset-btn" class="secondary">Bỏ chọn tất cả</button></div>
+            <div class="map-actions"><label class="student-map-only">Mã lớp<select id="map-class-select"></select></label><label class="student-map-only">Học viên<select id="map-student-select"></select></label><label>Thời gian<select id="period-filter"><option value="today">Hôm nay</option><option value="7days">7 ngày gần nhất</option><option value="month" selected>Tháng này</option><option value="last-month">Tháng trước</option></select></label><button id="reset-btn" class="secondary">Bỏ chọn tất cả</button></div>
           </div>
           <div id="graph" class="graph" aria-label="Bản đồ các ý feedback"></div>
           <div class="map-note"><span>Gợi ý:</span> Bấm vào một node để thêm hoặc bỏ ý khỏi feedback.</div>
